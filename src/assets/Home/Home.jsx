@@ -118,6 +118,7 @@
 import { Button, Form, Input, message, Modal, Table } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import '../Home/Home.css'
 
 export default function Home() {
     const [cities, setCities] = useState([]);
