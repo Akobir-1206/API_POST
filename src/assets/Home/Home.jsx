@@ -1,148 +1,34 @@
-// import { Button, Form, Input, message, Modal, Table } from 'antd'
-
-// import axios from 'axios'
-// import React, { useEffect, useState } from 'react'
-
-// export default function Home() {
-//     const [cities,setCities] = useState([]);
-//     const [open,setOpen] = useState(false);
-//     const [image, setImage] = useState(null)
-//     const getCities = ()=>{
-//         axios.get('https://autoapi.dezinfeksiyatashkent.uz/api/cities')
-//         .then(res=>setCities(res.data.data))
-//         .catch(err=>console.log(err))
-//     }
-//     useEffect(()=>{
-//         getCities()
-//     },[])
-
-//     const showModal = () =>{
-//         setOpen(true)
-//     }
-//     const closeModal = () =>{
-//         setOpen(false)
-//     }
-//     const columns = [
-//         {
-//             title:"Name",
-//             dataIndex: 'name'
-//         },
-//         {
-//             title:"Text",
-//             dataIndex: 'text'
-//         },
-//         {
-//             title: "Images",
-//             dataIndex: 'images'
-//         },
-//         {
-//             title:"Action",
-//             dataIndex: 'car'
-//         }
-//     ]
-//     const Akobir = cities.map((city,index)=>(
-//         {
-//            key:index,
-//            number:index+1,
-//            name:city.name,
-//            text:city.text,
-//            images:(<img width={150} src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city.image_src}`} />),
-//            car:(<><Button type='primary'  primary>Edit</Button><Button type='primary'  danger>Delete</Button></>)
-//         }
-//     ))
-//        const handleSubmit = (values) =>{
-//         const formData = new FormData();
-//         formData.append('name', values.name);
-//         formData.append('text', values.text);
-//         formData.append('images', image);
-       
-//        axios({
-//         url:'https://autoapi.dezinfeksiyatashkent.uz/api/',
-//         method: 'POST',
-//         headers:{
-//             Authorization: `Bearer ${localStorage.getItem('token')}`
-//         },
-//         data: formData
-//        }).then(res=>{
-//          if(res.data.success){
-//             message.success("Qushildi")
-//             setOpen(false)
-//             getCities()
-//          }
-//        }).catch(err=>console.log(err));
-//     }
-//   return (
-//     <div>
-//         <Button type='primary' onClick={showModal}>Add</Button>
-//       <Table columns={columns} dataSource={Akobir}/>
-//       <Modal title='CITY qoshish' open={open} footer={null} onCancel={closeModal}>
-//           <Form
-//           labelCol={{
-//             span: 3,
-//           }}
-//           wrapperCol={{
-//             span: 20,
-//           }}
-//           style={{
-//             maxWidth: 700,
-//           }}
-//           onFinish={handleSubmit}
-//           >
-//             <Form.Item label= "Name" name="name" >
-//                 <Input placeholder='name'/>
-//             </Form.Item>
-//             <Form.Item label= "Text" name="text">
-//                 <Input placeholder='text'/>
-//             </Form.Item >
-//             <Form.Item label= "Image"name="images" >
-//                 <Input type='file' onChange={(e)=>setImage(e.target.files[0])}/>
-//             </Form.Item>
-        
-//               <Form.Item 
-//              wrapperCol={{
-//              offset: 8,
-//              span: 16,
-//               }}
-//            >
-//                 <Button type="primary" htmlType="submit">
-//                      Submit
-//                 </Button>
-//              </Form.Item>
-//           </Form>
-//       </Modal>
-//     </div>
-//   )
-// }
-
-
-import { Button, Form, Input, message, Modal, Table } from 'antd';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import '../Home/Home.css'
+import { Button, Form, Input, message, Modal, Popconfirm, Table } from 'antd'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
     const [cities, setCities] = useState([]);
     const [open, setOpen] = useState(false);
     const [image, setImage] = useState(null);
-
+    const [loading, setLoading] = useState(false)
+    const [loading2, setLoading2] = useState(false)
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token')
     const getCities = () => {
         axios.get('https://autoapi.dezinfeksiyatashkent.uz/api/cities')
             .then(res => setCities(res.data.data))
-            .catch(err => console.log(err));
-    };
-
+            .catch(err => console.log(err))
+    }
     useEffect(() => {
-        getCities();
-    }, []);
+        if (!token) {
+            navigate('/')
+        }
+        getCities()
+    }, [])
 
     const showModal = () => {
-        setOpen(true);
-    };
-
+        setOpen(true)
+    }
     const closeModal = () => {
-        setOpen(false);
-    };
-
+        setOpen(false)
+    }
     const columns = [
         {
             title: "Name",
@@ -154,67 +40,109 @@ export default function Home() {
         },
         {
             title: "Images",
-            dataIndex: 'images',
-            render: (_, record) => (
-                <img
-                    width={150}
-                    src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${record.images}`}
-                    alt={record.name}
-                />
-            )
+            dataIndex: 'images'
         },
         {
             title: "Action",
-            key: 'action',
-            render: () => (
-                <>
-                    <Button type="primary">Edit</Button>
-                    <Button type="primary" danger>Delete</Button>
-                </>
-            )
+            dataIndex: 'car'
         }
-    ];
+    ]
+    const Akobir = cities.map((city, index) => (
+        {
+            key: index,
+            number: index + 1,
+            name: city.name,
+            text: city.text,
+            images: (<img width={150} src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city.image_src}`} />),
+            car: (<>
+                <Button type='primary' primary>Edit</Button>
+                <Popconfirm
+                    placement="topLeft"
+                    title="Delete the task"
+                    description="Are you sure to delete this task?"
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => deleteCities(city.id)}
+                >
+                    <Button danger type='primary'>Delete</Button>
+                </Popconfirm>
+            </>)
+        }
+    ))
+    const deleteCities = (id) => {
+        setLoading(true)
+        axios({
+            url: `https://autoapi.dezinfeksiyatashkent.uz/api/cities/${id}`,
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        }).then((res) => {
+            message.success("Ochirildi")
+            getCities()
 
-    const dataSource = cities.map((city, index) => ({
-        key: index,
-        name: city.name,
-        text: city.text,
-        images: city.image_src,  // Assuming 'images' is the correct key in the data structure
-    }));
+        }).catch(err => {
+            message.error("Xato")
 
+        })
+            .finally(() => {
+                setLoading(false)
+            })
+    }
     const handleSubmit = (values) => {
+        setLoading2(true)
         const formData = new FormData();
         formData.append('name', values.name);
         formData.append('text', values.text);
         formData.append('images', image);
-
         axios({
-            url: 'https://autoapi.dezinfeksiyatashkent.uz/api/cities',  // Updated with the correct endpoint
+            url: 'https://autoapi.dezinfeksiyatashkent.uz/api/cities',
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             },
             data: formData
-        })
-        .then(res => {
+        }).then(res => {
             if (res.data.success) {
-                message.success("City added successfully");
-                setOpen(false);
-                getCities();
+                message.success("Qushildi")
+                setOpen(false)
+                getCities()
             }
         })
-        .catch(err => console.log(err));
+            .catch(err => console.log(err))
+            .finally(() => {
+                setLoading2(false)
+            })
+    }
+
+    //delete button
+
+    const confirm = (e) => {
+        console.log(e);
+        message.success('Click on Yes');
     };
+    const cancel = (e) => {
+        console.log(e);
+        message.error('Click on No');
+    };
+
+
 
     return (
         <div>
             <Button type='primary' onClick={showModal}>Add</Button>
-            <Table columns={columns} dataSource={dataSource} />
-            <Modal title='Add City' open={open} onCancel={closeModal} footer={null}>
+            <Table columns={columns} dataSource={Akobir} />
+            <Modal title='CITY qoshish' open={open} footer={null} onCancel={closeModal}>
                 <Form
-                    labelCol={{ span: 3 }}
-                    wrapperCol={{ span: 20 }}
-                    style={{ maxWidth: 700 }}
+                    labelCol={{
+                        span: 3,
+                    }}
+                    wrapperCol={{
+                        span: 20,
+                    }}
+                    style={{
+                        maxWidth: 700,
+                    }}
                     onFinish={handleSubmit}
                 >
                     <Form.Item label="Name" name="name" >
@@ -222,17 +150,24 @@ export default function Home() {
                     </Form.Item>
                     <Form.Item label="Text" name="text">
                         <Input placeholder='text' />
-                    </Form.Item>
-                    <Form.Item label="Image" name="images">
+                    </Form.Item >
+                    <Form.Item label="Image" name="images" >
                         <Input type='file' onChange={(e) => setImage(e.target.files[0])} />
                     </Form.Item>
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit">
+
+                    <Form.Item
+                        wrapperCol={{
+                            offset: 8,
+                            span: 16,
+                        }}
+                    >
+                        <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
                             Submit
                         </Button>
                     </Form.Item>
                 </Form>
             </Modal>
         </div>
-    );
+    )
 }
+

@@ -48,7 +48,7 @@ export default function Login() {
     onFinish={Registr}
   >
     <Form.Item
-      label="Username"
+      label="Phone number"
       name="username"
       rules={[
         {
