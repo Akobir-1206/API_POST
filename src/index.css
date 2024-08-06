@@ -1,3 +1,30 @@
 body{
   display: block;
 }
+/* .ant-layout-sider-children{
+  position:  fixed;
+  top: 0;
+
+
+} */
+.ant-layout-sider-dark{
+  top: -1;
+  left: 0;
+  width: 200px;
+  height: 100vh !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  background: #001529 !important;
+}
+.ant-layout-content {
+  margin: 0px !important;
+  margin-top: 0px !important;
+  height: 600px;
+  padding: 0;
+  background: #4094f726 !important;
+}
+.ant menu{
+  height: 100vh;
+}
+.ant-popconfirm-inner-content{
+  font-size: 17px;
+}

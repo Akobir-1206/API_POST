@@ -1,173 +1,116 @@
-import { Button, Form, Input, message, Modal, Popconfirm, Table } from 'antd'
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
-
-export default function Home() {
-    const [cities, setCities] = useState([]);
-    const [open, setOpen] = useState(false);
-    const [image, setImage] = useState(null);
-    const [loading, setLoading] = useState(false)
-    const [loading2, setLoading2] = useState(false)
-    const navigate = useNavigate();
-    const token = localStorage.getItem('token')
-    const getCities = () => {
-        axios.get('https://autoapi.dezinfeksiyatashkent.uz/api/cities')
-            .then(res => setCities(res.data.data))
-            .catch(err => console.log(err))
+import React, { useEffect, useState } from 'react';
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  UploadOutlined,
+  UserOutlined,
+  VideoCameraOutlined,
+} from '@ant-design/icons';
+import { Button, Layout, Menu, theme } from 'antd';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { FaCity } from 'react-icons/fa';
+import { FaMagnifyingGlassLocation } from 'react-icons/fa6';
+import { IoCarSport, IoSettingsSharp } from 'react-icons/io5';
+import { MdOutlineDashboardCustomize } from 'react-icons/md';
+import { AiOutlineShop } from 'react-icons/ai';
+import { SiThemodelsresource } from 'react-icons/si';
+import { IoMdSettings } from 'react-icons/io';
+const { Header, Sider, Content } = Layout;
+const Home = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+  const token = localStorage.getItem('token')
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!token) {
+        navigate('/login')
     }
-    useEffect(() => {
-        if (!token) {
-            navigate('/')
-        }
-        getCities()
-    }, [])
-
-    const showModal = () => {
-        setOpen(true)
-    }
-    const closeModal = () => {
-        setOpen(false)
-    }
-    const columns = [
-        {
-            title: "Name",
-            dataIndex: 'name'
-        },
-        {
-            title: "Text",
-            dataIndex: 'text'
-        },
-        {
-            title: "Images",
-            dataIndex: 'images'
-        },
-        {
-            title: "Action",
-            dataIndex: 'car'
-        }
-    ]
-    const Akobir = cities.map((city, index) => (
-        {
-            key: index,
-            number: index + 1,
-            name: city.name,
-            text: city.text,
-            images: (<img width={150} src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city.image_src}`} />),
-            car: (<>
-                <Button type='primary' primary>Edit</Button>
-                <Popconfirm
-                    placement="topLeft"
-                    title="Delete the task"
-                    description="Are you sure to delete this task?"
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={() => deleteCities(city.id)}
-                >
-                    <Button danger type='primary'>Delete</Button>
-                </Popconfirm>
-            </>)
-        }
-    ))
-    const deleteCities = (id) => {
-        setLoading(true)
-        axios({
-            url: `https://autoapi.dezinfeksiyatashkent.uz/api/cities/${id}`,
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        }).then((res) => {
-            message.success("Ochirildi")
-            getCities()
-
-        }).catch(err => {
-            message.error("Xato")
-
-        })
-            .finally(() => {
-                setLoading(false)
-            })
-    }
-    const handleSubmit = (values) => {
-        setLoading2(true)
-        const formData = new FormData();
-        formData.append('name', values.name);
-        formData.append('text', values.text);
-        formData.append('images', image);
-        axios({
-            url: 'https://autoapi.dezinfeksiyatashkent.uz/api/cities',
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
+}, [])
+  return (
+    <Layout >
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{width:"100vh"}}>
+        <div className="demo-logo-vertical" />
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={['1']}
+          items={[
+            {
+                key: '0',
+                label: (<><h1>Akobir panel</h1></>)
             },
-            data: formData
-        }).then(res => {
-            if (res.data.success) {
-                message.success("Qushildi")
-                setOpen(false)
-                getCities()
-            }
-        })
-            .catch(err => console.log(err))
-            .finally(() => {
-                setLoading2(false)
-            })
-    }
-
-    //delete button
-
-    const confirm = (e) => {
-        console.log(e);
-        message.success('Click on Yes');
-    };
-    const cancel = (e) => {
-        console.log(e);
-        message.error('Click on No');
-    };
-
-
-
-    return (
-        <div>
-            <Button type='primary' onClick={showModal}>Add</Button>
-            <Table columns={columns} dataSource={Akobir} />
-            <Modal title='CITY qoshish' open={open} footer={null} onCancel={closeModal}>
-                <Form
-                    labelCol={{
-                        span: 3,
-                    }}
-                    wrapperCol={{
-                        span: 20,
-                    }}
-                    style={{
-                        maxWidth: 700,
-                    }}
-                    onFinish={handleSubmit}
-                >
-                    <Form.Item label="Name" name="name" >
-                        <Input placeholder='name' />
-                    </Form.Item>
-                    <Form.Item label="Text" name="text">
-                        <Input placeholder='text' />
-                    </Form.Item >
-                    <Form.Item label="Image" name="images" >
-                        <Input type='file' onChange={(e) => setImage(e.target.files[0])} />
-                    </Form.Item>
-
-                    <Form.Item
-                        wrapperCol={{
-                            offset: 8,
-                            span: 16,
-                        }}
-                    >
-                        <Button type="primary" htmlType="submit" loading={loading} disabled={loading}>
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </div>
-    )
-}
-
+            {
+              key: '1',
+              icon: <MdOutlineDashboardCustomize />,
+              label: (<><NavLink to='/'>Dashboard</NavLink></>),
+            },
+            {
+              key: '2',
+              icon: <AiOutlineShop />,
+              label: (<><NavLink to='/brand'>Brands</NavLink></>),
+            },
+            {
+              key: '3',
+              icon: <FaCity />              ,
+              label: (<><NavLink to='/city'>City</NavLink></>),
+            },
+            {
+                key: '4',
+                icon: <IoCarSport />,
+                label: (<><NavLink to='/cars'>Cars</NavLink></>),
+              },
+              {
+                key: '5',
+                icon: <FaMagnifyingGlassLocation />,
+                label: (<><NavLink to='/location'>Location</NavLink></>),
+              },
+              {
+                key: '6',
+                icon: <SiThemodelsresource />,
+                label: (<><NavLink to='/models'>Models</NavLink></>),
+              },
+              {
+                key: '7',
+                icon: <IoSettingsSharp />,
+                label: (<><NavLink to='/setting'>Settings</NavLink></>),
+              },
+          ]}
+        />
+      </Sider>
+      <Layout>
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+          }}
+        >
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              width: 64,
+              height: 64,
+            }}
+          />
+        </Header>
+        <Content
+          style={{
+            margin: '24px 16px',
+            padding: 24,
+            minHeight: 280,
+            background: colorBgContainer,
+            borderRadius: borderRadiusLG,
+            overflow: "scroll"
+          }}
+        >
+          <Outlet/>
+        </Content>
+      </Layout>
+    </Layout>
+  );
+};
+export default Home;

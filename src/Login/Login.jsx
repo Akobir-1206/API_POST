@@ -21,7 +21,7 @@ export default function Login() {
             if(res.data.success){
                 localStorage.setItem('token',res?.data?.data?.tokens?.accessToken?.token)
                 message.success("Muvaffaqiyatli")
-                navigate("/home")
+                navigate("/")
             }
         })
         .catch(err=>{
