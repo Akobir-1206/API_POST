@@ -29,7 +29,7 @@ export default function Login() {
         })
     }
   return (
-    <div>
+    <div className='login'>
       <Form
     name="basic"
     labelCol={{
